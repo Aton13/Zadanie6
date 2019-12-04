@@ -1,0 +1,31 @@
+body,html{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  .map {
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  table {
+    background-color: mediumaquamarine;
+    position: absolute;
+    top: 0px;
+    right: 0;
+  }
+  .bvrstvy{
+    position: absolute;
+    top: 0px;
+    left: 50px;  
+    background-color: #47e80e; 
+  }
+  .pridajv{
+    position: absolute;
+    top: 0px;
+    right: 365px;   
+  }
