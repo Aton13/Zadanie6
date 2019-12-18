@@ -1,18 +1,25 @@
 <!doctype html>
-<html lang="en">
+<html lang="sk">
   <head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.1.1/css/ol.css" type="text/css">
-        <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.1.1/build/ol.js"></script>
-    <title>Zadanie 6</title>
+      <meta charset="UTF-8">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.1.1/css/ol.css" type="text/css">
+      <link rel="stylesheet" type="text/css" href="style.css">
+      <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.1.1/build/ol.js"></script>
+      <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+      <title>Zadanie 6</title>
   </head>
   <body onload="Fun()">
     <div id="map" class="map"></div>
     <input type="button" class="bvrstvy" id="btnVrstvy" value="Vrstvy" onclick="setColor('btnVrstvy','#47e80e');showTable()" />
+    <input class="url" id="myURL" value="">
+    <button class="vloz_url" onclick="functionURL()">Vlož url</button>
     <div id="tableWrapper" style="visibility: hidden;">
-        <button class="pridajv" onclick="showLayer()" >Pridaj vrstvy</button>
-        <p id="vrstvy"></p>
+      <button class="pridajv" onclick="showLayer()" >Pridaj vrstvy</button>    
+      <p id="vrstvy"></p>
     </div>
+    <a class="get_info" id="info">
+        
+    </a>
     <script  src="./js.js"></script>
   </body>
 </html>

@@ -5,6 +5,7 @@ const TileLayer=ol.layer.Tile
 const ImageWMS=ol.source.ImageWMS
 const OSM =ol.source.OSM 
 const olLayers = [];
+const wmsSource = [];
 
 
   layers = [
@@ -13,24 +14,40 @@ const olLayers = [];
     }),
   ];
 
+  var view = new View({
+    projection: 'EPSG:4326',
+    center: [17.888738, 48.746600],
+    zoom: 14
+  });
+
   var map = new Map({
     layers: layers,
       target: 'map',
-      view: new View({
-        projection: 'EPSG:4326',
-        center: [17.888738, 48.746600],
-        zoom: 14
-      })
+      view: view
     });
 
 const WMSCapabilities =ol.format.WMSCapabilities;
 
 var parser = new WMSCapabilities();
 
+function functionURL() {
+  const x = document.getElementById("myURL").value;
+  alert("URL úspešne vložená");
+  if (!x) {
+    alert('No url')
+    return;
+}
+  Fun();
+}
 
 function Fun() {  
-
-  fetch('http://localhost:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',{mode:'cors'})
+  const url = document.getElementById("myURL").value;
+    if (!url) {
+        return;
+    }
+    console.log(url)
+    fetch(url,{mode:'cors'})
+  // fetch('http://localhost:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',{mode:'cors'})
   .then(function(response) {
     return response.text();
   })
@@ -53,23 +70,25 @@ function appendData(text){
 
     for (var r = 0; r <= result.Capability.Layer.Layer.length - 1; r++) {
       const geoserverLayer = result.Capability.Layer.Layer[r];
+      var Source = new ImageWMS({  
+        url: 'http://localhost:8080/geoserver/ows?',   
+        params: { LAYERS: [geoserverLayer.Name] },  
+        ratio: 1, 
+        serverType: 'geoserver'
+      })
       const layer = new ImageLayer({
         extent: [17.84506885869866, 48.731926770588124, 17.93695929993104, 48.764736748435276],
-        source: new ImageWMS({  
-          url: 'http://localhost:8080/geoserver/ows?',   
-          params: { LAYERS: [geoserverLayer.Name] },  
-          ratio: 1, 
-          serverType: 'geoserver'
-        }),
+        source: Source
       })
-      olLayers.push(layer)   
+      olLayers.push(layer) 
+      wmsSource.push(Source)  
     }
-
+    console.log(wmsSource)
       var col = [];
       for (var i = 0; i < result.Capability.Layer.Layer.length; i++) {
           for (var key in result.Capability.Layer.Layer[i]) {
               if (col.indexOf(key) === -1) {
-                if(key=="Name" || key=="Title" || key=="queryable" || key=="Book ID")
+                if(key=="Name" || key=="Title" || key=="queryable" || key=="ID")
                   col.push(key);
               }
           }
@@ -86,6 +105,7 @@ function appendData(text){
       table = document.createElement('table');
       thead = document.createElement('thead');
       tr = document.createElement('tr');
+      table.id='tabVrstvy';
 
       //naplnenie hlavicky tabukly
       for (var i = 0; i < col.length; i++) {
@@ -128,6 +148,26 @@ function appendData(text){
     }
     tablearea.appendChild(table);
     console.log(tablearea);
+
+    // infromacie o vrstvach Get feature info
+    map.on('singleclick', function (evt) {
+      const sources = [];
+      map.getLayers().forEach(layer => sources.push(layer.getSource()));
+      document.getElementById('info').innerHTML = '';
+      var viewResolution = view.getResolution();
+      sources.forEach((wmsSource) => {
+          var url = wmsSource.getFeatureInfoUrl && wmsSource.getFeatureInfoUrl(evt.coordinate, viewResolution, 'EPSG:4326',
+          { 'INFO_FORMAT': 'text/html' });
+          if (url) {
+              fetch(url)
+              .then(function (response) { return response.text(); })
+              .then(function (html) {
+                      document.getElementById('info').insertAdjacentHTML( 'beforeend', html );
+                  });
+          }
+  
+      }) 
+    }) 
   }
 
 // Zobrazenie tabulky
@@ -172,3 +212,15 @@ function showLayer() {
       property.style.backgroundColor = "#F40000";
     }
   }
+
+  
+  map.on('pointermove', function(evt) {
+    if (evt.dragging) {
+      return;
+    }
+    var pixel = map.getEventPixel(evt.originalEvent);
+    var hit = map.forEachLayerAtPixel(pixel, function() {
+      return true;
+    });
+    map.getTargetElement().style.cursor = hit ? 'pointer' : '';
+  });
